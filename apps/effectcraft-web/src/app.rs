@@ -167,6 +167,13 @@ pub fn session() -> Session {
         expr: Some(Arc::new(effectcraft_expr::Expressions)),
         expr_check: Some(effectcraft_expr::check_syntax),
         script: Some(effectcraft_host::script::runner),
+        // ScriptUI windows need the event hand-off and the task runner too: without them the
+        // window opens but every click, and closing it, fails with "scripting is not available".
+        script_ui: effectcraft_engine::scriptui::ScriptUi {
+            dispatch: Some(effectcraft_host::script::dispatch_ui),
+            tasks: Some(effectcraft_host::script::run_tasks),
+            ..Default::default()
+        },
         exporter: Some(Arc::new(effectcraft_host::FileExporter { sink: Some(files::export_sink()) })),
         config: Some(Arc::new(persist::config())),
         offload: (!query_flag("noworkers")).then(|| {
